@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>applanix_driver</name>
+  <version>0.0.0</version>
+  <description>Connect Applanix products publishing GSOF data to ROS.</description>
+
+  <maintainer email="anguyen@applanix.com">Andre Nguyen</maintainer>
+  <license>none</license>
+  <author email="anguyen@applanix.com">Andre Nguyen</author>
+
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  
+  <!-- Non-ROS system dependencies-->
+  <depend>geographiclib</depend>
+
+  <depend>applanix_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>autoware_sensing_msgs</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

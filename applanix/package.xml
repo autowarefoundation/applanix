@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>applanix</name>
+  <version>0.1.0</version>
+  <description>The ROS2 driver for Applanix POS LVX </description>
+
+  <maintainer email="melike@leodrive.ai">Melike Tanrıkulu</maintainer>
+
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+
+  <depend>applanix_msgs</depend>
+  <depend>applanix_driver</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
