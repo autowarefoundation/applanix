@@ -8,12 +8,10 @@ This package contains the applanix [POS LVX](https://leodrive.ai/products/applan
 ## Installation
 Install applanix repository:
 ```
-https://gitlab.com/leo-aios/applanix.git
-
+https://github.com/autowarefoundation/applanix.git
 cd existing_repo
-git remote add origin https://gitlab.com/leo-aios/applanix.git
+https://github.com/autowarefoundation/applanix.git
 git branch -M main
-git push -uf origin main
 ```
 ## Usage
 The Applanix driver is used with the applanix message package. Therefore, the applanix_msgs package should also be compiled and the driver should be used. <br/>
