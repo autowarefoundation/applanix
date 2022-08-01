@@ -1,0 +1,13 @@
+/**:
+  ros__parameters:
+    lvx_ip: "192.168.1.100"
+    port: 5602
+    parent_frame: "ned"
+    child_frame: "POS_REF"
+    base_frame_id: "base_link"
+    gnss_ins_frame_id: "gnss_ins_link"
+    publish_gsof_msgs: true
+    publish_ros_msgs: true
+    publish_tf: false
+    publish_autoware_msgs: true
+    time_source: "now"   # now, gps or gps_time_of_week

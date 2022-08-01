@@ -1,0 +1,13 @@
+appl_cc_lib(
+    NAME
+      gsof
+    SRCS
+      message.cpp
+      message_parser.cpp
+      packet_parser.cpp
+      stream_parser.cpp
+    INC
+      ${PROJECT_SOURCE_DIR}/include
+    COPTS
+      ${COMMON_COMPILE_FLAGS}
+)

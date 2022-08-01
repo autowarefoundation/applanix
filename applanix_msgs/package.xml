@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>applanix_msgs</name>
+  <version>0.0.0</version>
+  <description>ROS message definitions of Applanix message groups, see ENG-ICD-000027.</description>
+
+  <maintainer email="anguyen@applanix.com">Andre Nguyen</maintainer>
+  <license>none</license>
+  <author email="anguyen@applanix.com">Andre Nguyen</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <depend>std_msgs</depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

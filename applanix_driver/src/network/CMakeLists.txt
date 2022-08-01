@@ -1,0 +1,20 @@
+appl_cc_lib(
+    NAME
+      network
+    SRCS
+      pcap_reader.cpp
+      pcap_tcp_client.cpp
+      tcp_client.cpp
+      tcp_client_delimiter.cpp
+      udp_client.cpp
+    INC
+      ${PROJECT_SOURCE_DIR}/include
+    INC_SYS
+      ${PCAP_INCLUDE_DIR}
+    DEPS
+      appl::util
+      boost_system
+      ${PCAP_LIBRARY}
+    COPTS
+      ${COMMON_COMPILE_FLAGS}
+)
