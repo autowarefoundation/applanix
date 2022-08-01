@@ -10,5 +10,5 @@ Install applanix repository:
 ```
 https://github.com/autowarefoundation/applanix.git
 cd existing_repo
-git remote add origin https://gitlab.com/leo-aios/applanix.git
+git remote add origin https://github.com/autowarefoundation/applanix.git
 git branch -M main
