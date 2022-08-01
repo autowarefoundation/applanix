@@ -8,7 +8,7 @@ This package contains the applanix [POS LVX](https://leodrive.ai/products/applan
 ## Installation
 Install applanix repository:
 ```
-https://github.com/autowarefoundation/applanix.git
+git clone https://github.com/autowarefoundation/applanix.git
 cd existing_repo
 git remote add origin https://github.com/autowarefoundation/applanix.git
 git branch -M main
