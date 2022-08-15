@@ -277,6 +277,30 @@ autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(
     return autowareOrientationMsg;
 }
 
+geometry_msgs::msg::TwistWithCovarianceStamped toTwistMsg(
+           const applanix_driver::gsof::InsSolution & ins_solution)
+{
+
+    geometry_msgs::msg::TwistWithCovarianceStamped twistMsg;
+
+    if(cos(deg2rad(ins_solution.attitude.heading - ins_solution.track_angle)) < 0) {
+        twistMsg.twist.twist.linear.x = - ins_solution.total_speed;
+    }
+    else {
+        twistMsg.twist.twist.linear.x = ins_solution.total_speed;
+    }
+
+    twistMsg.twist.twist.angular.z = - deg2rad(ins_solution.angular_rate.heading);
+    twistMsg.twist.covariance[0]  = 0.04;
+    twistMsg.twist.covariance[7]  = 10000.0;
+    twistMsg.twist.covariance[14] = 10000.0;
+    twistMsg.twist.covariance[21] = 10000.0;
+    twistMsg.twist.covariance[28] = 10000.0;
+    twistMsg.twist.covariance[35] = 0.01;
+
+   return twistMsg;
+}
+
 applanix_msgs::msg::GpsTimeGsof toRosMessage(const applanix_driver::gsof::GpsTime & gps_time)
 {
   applanix_msgs::msg::GpsTimeGsof gps_time_gsof;

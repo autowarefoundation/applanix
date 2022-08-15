@@ -21,6 +21,7 @@
 #include <GeographicLib/LocalCartesian.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/time.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
@@ -55,7 +56,7 @@ autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(c
                                                                  const applanix_driver::gsof::InsSolutionRms &covariance);
 autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(const applanix_driver::gsof::InsSolution &ins_solution);
 
-
+geometry_msgs::msg::TwistWithCovarianceStamped toTwistMsg(const applanix_driver::gsof::InsSolution &ins_solution);
 
 applanix_msgs::msg::GpsTimeGsof toRosMessage(const applanix_driver::gsof::GpsTime &gps_time);
 applanix_msgs::msg::StatusGsof toRosMessage(const applanix_driver::gsof::Status &status);

@@ -20,7 +20,7 @@
 #include <applanix_msgs/msg/navigation_performance_gsof50.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <sensor_msgs/msg/imu.hpp>
-
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include "applanix_driver_ros/conversions.h"
 
 namespace applanix_driver_ros {
@@ -36,6 +36,7 @@ LvxClientRos::LvxClientRos(const rclcpp::NodeOptions &options) :
     publish_gsof_msgs_(true),
     publish_ros_msgs_(true),
     publish_autoware_msgs_(true),
+    publish_twist_msgs_(true),
     publish_tf_(true),
     publishers_(),
     transform_broadcaster_(std::nullopt) {
@@ -52,6 +53,7 @@ LvxClientRos::LvxClientRos(const rclcpp::NodeOptions &options) :
   publish_gsof_msgs_ = this->declare_parameter("publish_gsof_msgs", true);
   publish_ros_msgs_ = this->declare_parameter("publish_ros_msgs", true);
   publish_autoware_msgs_ = this->declare_parameter("publish_autoware_msgs",true);
+  publish_twist_msgs_ = this->declare_parameter("publish_twist_msgs",true);
 
   bool publish_tf = this->declare_parameter("publish_tf", true);
   if (publish_tf) {
@@ -91,6 +93,13 @@ LvxClientRos::LvxClientRos(const rclcpp::NodeOptions &options) :
                                                                                &LvxClientRos::publishGnssInsOrientationCallback,
                                                                                k_topic_orientation);
       advertise<autoware_sensing_msgs::msg::GnssInsOrientationStamped>(k_topic_orientation);
+  }
+  if(publish_twist_msgs_){
+
+      registerAndAdvertise<geometry_msgs::msg::TwistWithCovarianceStamped>(applanix_driver::gsof::GSOF_ID_49_INS_FULL_NAV,
+                                                                                    &LvxClientRos::publishGnssInsTwistCallback,
+                                                                                    k_topic_twist);
+      advertise<geometry_msgs::msg::TwistWithCovarianceStamped>(k_topic_twist);
   }
   createService<applanix_msgs::srv::SetOrigin>(k_service_set_origin, &LvxClientRos::setOriginCallback);
   createService<std_srvs::srv::Empty>(k_service_reset_origin, &LvxClientRos::resetOriginCallback);
@@ -221,6 +230,17 @@ void LvxClientRos::publishGnssInsOrientationCallback(const applanix_driver::gsof
   autoware_orientation_pub->publish(gnssInsOrientationStamped);
 }
 
+void LvxClientRos::publishGnssInsTwistCallback(const applanix_driver::gsof::Message &) {
+
+    geometry_msgs::msg::TwistWithCovarianceStamped gnssInsTwistStamped = toTwistMsg(*ins_solution_);
+
+    gnssInsTwistStamped.header.frame_id = gnss_ins_frame_id_;
+    gnssInsTwistStamped.header.stamp = getRosTimestamp(ins_solution_->gps_time);
+
+    using GnssInsTwist = geometry_msgs::msg::TwistWithCovarianceStamped;
+    auto twist_pub = std::static_pointer_cast<rclcpp::Publisher<GnssInsTwist>>(publishers_[k_topic_twist]);
+    twist_pub->publish(gnssInsTwistStamped);
+}
 rclcpp::Time LvxClientRos::getRosTimestamp(const applanix_driver::gsof::GpsTime &gps_time) {
   switch (time_source_) {
     case util::RosTimeSource::NOW:

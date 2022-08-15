@@ -46,6 +46,7 @@ class LvxClientRos : public rclcpp::Node {
   static constexpr char k_topic_odometry[]       = "/applanix/lvx_client/odom";
   static constexpr char k_topic_navsat[]         = "/applanix/lvx_client/gnss/fix";
   static constexpr char k_topic_imu[]            = "/applanix/lvx_client/imu_raw";
+  static constexpr char k_topic_twist[]          = "/applanix/lvx_client/twist_with_covariance";
   static constexpr char k_topic_gsof_49[]        = "/applanix/lvx_client/gsof/ins_solution_49";
   static constexpr char k_topic_gsof_50[]        = "/applanix/lvx_client/gsof/ins_solution_rms_50";
   static constexpr char k_service_set_origin[]   = "/lvx_client/set_origin";
@@ -74,6 +75,7 @@ class LvxClientRos : public rclcpp::Node {
   bool publish_gsof_msgs_;
   bool publish_ros_msgs_;
   bool publish_autoware_msgs_;
+  bool publish_twist_msgs_;
   bool publish_tf_;
 
 
@@ -112,6 +114,8 @@ class LvxClientRos : public rclcpp::Node {
 
 
   void publishGnssInsOrientationCallback(const applanix_driver::gsof::Message &message);
+
+  void publishGnssInsTwistCallback(const applanix_driver::gsof::Message &message);
 
   rclcpp::Time getRosTimestamp(const applanix_driver::gsof::GpsTime& gps_time);
 
