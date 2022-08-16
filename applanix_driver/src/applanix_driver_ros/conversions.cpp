@@ -296,7 +296,7 @@ geometry_msgs::msg::TwistWithCovarianceStamped toTwistMsg(
     twistMsg.twist.covariance[14] = 10000.0;
     twistMsg.twist.covariance[21] = 10000.0;
     twistMsg.twist.covariance[28] = 10000.0;
-    twistMsg.twist.covariance[35] = 0.01;
+    twistMsg.twist.covariance[35] = 100.0;
 
    return twistMsg;
 }
