@@ -234,7 +234,7 @@ void LvxClientRos::publishGnssInsTwistCallback(const applanix_driver::gsof::Mess
 
     geometry_msgs::msg::TwistWithCovarianceStamped gnssInsTwistStamped = toTwistMsg(*ins_solution_);
 
-    gnssInsTwistStamped.header.frame_id = gnss_ins_frame_id_;
+    gnssInsTwistStamped.header.frame_id = base_frame_id_;
     gnssInsTwistStamped.header.stamp = getRosTimestamp(ins_solution_->gps_time);
 
     using GnssInsTwist = geometry_msgs::msg::TwistWithCovarianceStamped;
