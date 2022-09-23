@@ -11,4 +11,4 @@
     publish_tf: false
     publish_autoware_msgs: true
     publish_twist_msgs: true
-    time_source: "now"   # now, gps or gps_time_of_week
+    time_source: "gps"   # now, gps or gps_time_of_week

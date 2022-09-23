@@ -47,6 +47,10 @@ constexpr std::int64_t k_to_nano = 1e9;
 constexpr std::int64_t k_milli_to_nano = 1e6;
 constexpr std::int64_t k_gps_seconds_in_week = 60 * 60 * 24 * 7;
 
+//GPS time - Unix Time offset
+constexpr std::int64_t k_unix_time_offset = 315964782000000000;
+
+
 rclcpp::Time toRosTimeOfTheWeek(const applanix_driver::gsof::GpsTime & gps_time)
 {
   return rclcpp::Time(gps_time.time_msec * k_milli_to_nano, RCL_STEADY_TIME);
@@ -55,9 +59,11 @@ rclcpp::Time toRosTimeOfTheWeek(const applanix_driver::gsof::GpsTime & gps_time)
 rclcpp::Time toRosTimeGpsEpoch(const applanix_driver::gsof::GpsTime & gps_time)
 {
   // GpsTime has week as 16 bit so we don't need to take week rollover into account
+  // Add unix time offset
   const std::int64_t gps_nanoseconds_since_epoch =
-    (k_gps_seconds_in_week * static_cast<std::int64_t>(gps_time.week) * k_to_nano) +
-    (k_milli_to_nano * gps_time.time_msec);
+          (k_gps_seconds_in_week * static_cast<std::int64_t>(gps_time.week) * k_to_nano) +
+          (k_milli_to_nano * gps_time.time_msec) + k_unix_time_offset ;
+
   return rclcpp::Time(gps_nanoseconds_since_epoch, RCL_STEADY_TIME);
 }
 
