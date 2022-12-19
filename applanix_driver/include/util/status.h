@@ -17,7 +17,7 @@
 #pragma once
 
 #include "util/wise_enum/wise_enum.h"
-
+#include <string>
 namespace util {
 
 WISE_ENUM_CLASS(ErrorCode, OK, CANCELLED, INVALID_ARGUMENT, NOT_FOUND, UNIMPLEMENTED,

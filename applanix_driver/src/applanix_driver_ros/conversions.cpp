@@ -18,7 +18,7 @@
 
 #include <GeographicLib/UTMUPS.hpp>
 #include <rclcpp/logging.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "applanix_driver/math.h"
 #include <sensor_msgs/msg/imu.hpp>

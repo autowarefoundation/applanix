@@ -17,7 +17,7 @@
 #include "applanix_driver/gsof/message_parser.h"
 
 #include <cstring>
-
+#include <iostream>
 #include "applanix_driver/gsof/message.h"
 
 namespace applanix_driver::gsof {

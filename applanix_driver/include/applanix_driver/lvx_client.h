@@ -24,7 +24,7 @@
 #include <string>
 #include <thread>
 #include <unordered_map>
-
+#include <stdexcept>
 #include "applanix_driver/gsof/stream_parser.h"
 #include "applanix_driver/gsof/message_parser.h"
 #include "network/ip_client.h"
