@@ -129,7 +129,7 @@ void LvxClientRos::registerCallback(applanix_driver::gsof::Id id, LvxClientRos::
 
 template<typename RosMessageType>
 void LvxClientRos::advertise(const std::string &topic) {
-  publishers_[topic] = this->create_publisher<RosMessageType>(topic, rclcpp::SensorDataQoS());
+  publishers_[topic] = this->create_publisher<RosMessageType>(topic, 10);
 }
 
 template<typename ServiceType>
