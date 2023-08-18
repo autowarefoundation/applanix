@@ -13,7 +13,7 @@ def generate_launch_description():
     default_config = os.path.join(
         get_package_share_directory('applanix_driver'),
         'config',
-        'lvx_client_params.yaml'
+        'lvx_client_params.param.yaml'
     )
 
     arg_node_name = DeclareLaunchArgument(

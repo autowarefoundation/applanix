@@ -18,7 +18,7 @@
 
 #include <GeographicLib/UTMUPS.hpp>
 #include <rclcpp/logging.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "applanix_driver/math.h"
 #include <sensor_msgs/msg/imu.hpp>
@@ -47,6 +47,10 @@ constexpr std::int64_t k_to_nano = 1e9;
 constexpr std::int64_t k_milli_to_nano = 1e6;
 constexpr std::int64_t k_gps_seconds_in_week = 60 * 60 * 24 * 7;
 
+//GPS time - Unix Time offset
+constexpr std::int64_t k_unix_time_offset = 315964782000000000;
+
+
 rclcpp::Time toRosTimeOfTheWeek(const applanix_driver::gsof::GpsTime & gps_time)
 {
   return rclcpp::Time(gps_time.time_msec * k_milli_to_nano, RCL_STEADY_TIME);
@@ -55,9 +59,11 @@ rclcpp::Time toRosTimeOfTheWeek(const applanix_driver::gsof::GpsTime & gps_time)
 rclcpp::Time toRosTimeGpsEpoch(const applanix_driver::gsof::GpsTime & gps_time)
 {
   // GpsTime has week as 16 bit so we don't need to take week rollover into account
+  // Add unix time offset
   const std::int64_t gps_nanoseconds_since_epoch =
-    (k_gps_seconds_in_week * static_cast<std::int64_t>(gps_time.week) * k_to_nano) +
-    (k_milli_to_nano * gps_time.time_msec);
+          (k_gps_seconds_in_week * static_cast<std::int64_t>(gps_time.week) * k_to_nano) +
+          (k_milli_to_nano * gps_time.time_msec) + k_unix_time_offset ;
+
   return rclcpp::Time(gps_nanoseconds_since_epoch, RCL_STEADY_TIME);
 }
 
@@ -174,28 +180,28 @@ sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution & ins_so
 {
     sensor_msgs::msg::Imu imuMsg;
 
-    tf2::Quaternion quaternion, ins_corrected_quat;
+    tf2::Quaternion quaternion;
     quaternion.setRPY(
             deg2rad(ins_solution.attitude.roll),
             deg2rad(ins_solution.attitude.pitch),
             deg2rad(ins_solution.attitude.heading)
             );
 
-    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
-    ins_rot_matrix.setRotation(quaternion);
+//    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
+//    ins_rot_matrix.setRotation(quaternion);
+//
+//    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
+//    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
+//
+//    ins_rot_ = ENU2NED * ins_rot_matrix;
+//
+//    ins_corrected_rot_ = ins_rot_ * applanix2ros;
+//    ins_corrected_rot_.getRotation(ins_corrected_quat);
 
-    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
-    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
-
-    ins_rot_ = ENU2NED * ins_rot_matrix;
-
-    ins_corrected_rot_ = ins_rot_ * applanix2ros;
-    ins_corrected_rot_.getRotation(ins_corrected_quat);
-
-    imuMsg.orientation.x = ins_corrected_quat.getX();
-    imuMsg.orientation.y = ins_corrected_quat.getY();
-    imuMsg.orientation.z = ins_corrected_quat.getZ();
-    imuMsg.orientation.w = ins_corrected_quat.getW();
+    imuMsg.orientation.x = quaternion.getX();
+    imuMsg.orientation.y = quaternion.getY();
+    imuMsg.orientation.z = quaternion.getZ();
+    imuMsg.orientation.w = quaternion.getW();
 
     imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
     imuMsg.angular_velocity.y = static_cast<double>(-deg2rad(ins_solution.angular_rate.pitch));
@@ -237,28 +243,28 @@ autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(
 
     autoware_sensing_msgs::msg::GnssInsOrientationStamped autowareOrientationMsg;
 
-    tf2::Quaternion quaternion, ins_corrected_quat;
+    tf2::Quaternion quaternion;
     quaternion.setRPY(
             deg2rad(ins_solution.attitude.roll),
             deg2rad(ins_solution.attitude.pitch),
             deg2rad(ins_solution.attitude.heading)
     );
 
-    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
-    ins_rot_matrix.setRotation(quaternion);
+//    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
+//    ins_rot_matrix.setRotation(quaternion);
+//
+//    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
+//    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
+//
+//    ins_rot_ = ENU2NED * ins_rot_matrix;
+//
+//    ins_corrected_rot_ = ins_rot_ * applanix2ros;
+//    ins_corrected_rot_.getRotation(ins_corrected_quat);
 
-    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
-    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
-
-    ins_rot_ = ENU2NED * ins_rot_matrix;
-
-    ins_corrected_rot_ = ins_rot_ * applanix2ros;
-    ins_corrected_rot_.getRotation(ins_corrected_quat);
-
-    autowareOrientationMsg.orientation.orientation.x = ins_corrected_quat.getX();
-    autowareOrientationMsg.orientation.orientation.y = ins_corrected_quat.getY();
-    autowareOrientationMsg.orientation.orientation.z = ins_corrected_quat.getZ();
-    autowareOrientationMsg.orientation.orientation.w = ins_corrected_quat.getW();
+    autowareOrientationMsg.orientation.orientation.x = quaternion.getX();
+    autowareOrientationMsg.orientation.orientation.y = quaternion.getY();
+    autowareOrientationMsg.orientation.orientation.z = quaternion.getZ();
+    autowareOrientationMsg.orientation.orientation.w = quaternion.getW();
 
     return autowareOrientationMsg;
 }
@@ -296,7 +302,7 @@ geometry_msgs::msg::TwistWithCovarianceStamped toTwistMsg(
     twistMsg.twist.covariance[14] = 10000.0;
     twistMsg.twist.covariance[21] = 10000.0;
     twistMsg.twist.covariance[28] = 10000.0;
-    twistMsg.twist.covariance[35] = 0.01;
+    twistMsg.twist.covariance[35] = 1.0;
 
    return twistMsg;
 }

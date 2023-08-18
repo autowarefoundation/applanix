@@ -129,7 +129,7 @@ void LvxClientRos::registerCallback(applanix_driver::gsof::Id id, LvxClientRos::
 
 template<typename RosMessageType>
 void LvxClientRos::advertise(const std::string &topic) {
-  publishers_[topic] = this->create_publisher<RosMessageType>(topic, k_default_qos_history_depth);
+  publishers_[topic] = this->create_publisher<RosMessageType>(topic, 10);
 }
 
 template<typename ServiceType>
@@ -234,7 +234,7 @@ void LvxClientRos::publishGnssInsTwistCallback(const applanix_driver::gsof::Mess
 
     geometry_msgs::msg::TwistWithCovarianceStamped gnssInsTwistStamped = toTwistMsg(*ins_solution_);
 
-    gnssInsTwistStamped.header.frame_id = gnss_ins_frame_id_;
+    gnssInsTwistStamped.header.frame_id = base_frame_id_;
     gnssInsTwistStamped.header.stamp = getRosTimestamp(ins_solution_->gps_time);
 
     using GnssInsTwist = geometry_msgs::msg::TwistWithCovarianceStamped;
