@@ -204,13 +204,13 @@ sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution & ins_so
     imuMsg.orientation.w = quaternion.getW();
 
     imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
-    imuMsg.angular_velocity.y = static_cast<double>(-deg2rad(ins_solution.angular_rate.pitch));
-    imuMsg.angular_velocity.z = static_cast<double>(-deg2rad(ins_solution.angular_rate.heading));
+    imuMsg.angular_velocity.y = static_cast<double>(deg2rad(ins_solution.angular_rate.pitch));
+    imuMsg.angular_velocity.z = static_cast<double>(deg2rad(ins_solution.angular_rate.heading));
 
 
     imuMsg.linear_acceleration.x = static_cast<double>(ins_solution.acceleration.x);
-    imuMsg.linear_acceleration.y = static_cast<double>(-ins_solution.acceleration.y);
-    imuMsg.linear_acceleration.z = static_cast<double>(-ins_solution.acceleration.z);
+    imuMsg.linear_acceleration.y = static_cast<double>(ins_solution.acceleration.y);
+    imuMsg.linear_acceleration.z = static_cast<double>(ins_solution.acceleration.z);
 
     return imuMsg;
 
