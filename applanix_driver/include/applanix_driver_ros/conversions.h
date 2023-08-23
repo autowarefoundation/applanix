@@ -48,13 +48,17 @@ sensor_msgs::msg::NavSatFix toNavSatFix(const applanix_driver::gsof::InsSolution
 sensor_msgs::msg::NavSatFix toNavSatFix(const applanix_driver::gsof::InsSolution &ins_solution,
                                         const applanix_driver::gsof::InsSolutionRms &covariance);
 
-sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution &ins_solution);
 sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution &ins_solution,
-                                     const applanix_driver::gsof::InsSolutionRms &covariance);
+                               const bool & enable_ned2enu_transform);
+sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution &ins_solution,
+                                     const applanix_driver::gsof::InsSolutionRms &covariance,
+                               const bool & enable_ned2enu_transform);
 
 autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(const applanix_driver::gsof::InsSolution &ins_solution,
-                                                                 const applanix_driver::gsof::InsSolutionRms &covariance);
-autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(const applanix_driver::gsof::InsSolution &ins_solution);
+                                                                 const applanix_driver::gsof::InsSolutionRms &covariance,
+                                                                               const bool & enable_ned2enu_transform);
+autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(const applanix_driver::gsof::InsSolution &ins_solution,
+                                                                               const bool & enable_ned2enu_transform);
 
 geometry_msgs::msg::TwistWithCovarianceStamped toTwistMsg(const applanix_driver::gsof::InsSolution &ins_solution);
 

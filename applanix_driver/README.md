@@ -37,6 +37,8 @@ ros2 launch applanix_driver lvx_client.launch.py
  * publish_autoware_msgs: This package contains [autoware messages](https://github.com/autowarefoundation/autoware_msgs). You can activate these messages by setting this parameter to true.
    > applanix/lvx_client/autoware_orientation (autoware_sensing_msgs::msg::GnssInsOrientationStamped)
 
+ * enable_ned2enu_transform: This parameter enables the tranformation from NED (North-East-Down) to ENU (East-North-Up) for Imu and AutowareOrientation messages. ROS2 uses ENU. 
+
 ## Published Topics
  * /applanix/lvx_client/gsof/ins_solution_49         (applanix_msgs::msg::NavigationSolutionGsof49) <br/>
  * /applanix/lvx_client/gsof/ins_solution_rms_50     (applanix_msgs::msg::NavigationPerformanceGsof50) <br/>

@@ -77,6 +77,7 @@ class LvxClientRos : public rclcpp::Node {
   bool publish_autoware_msgs_;
   bool publish_twist_msgs_;
   bool publish_tf_;
+  bool enable_ned2enu_transform_;
 
 
   std::unordered_map<std::string, std::shared_ptr<rclcpp::PublisherBase>> publishers_;

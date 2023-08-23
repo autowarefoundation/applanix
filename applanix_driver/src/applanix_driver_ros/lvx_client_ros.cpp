@@ -54,6 +54,7 @@ LvxClientRos::LvxClientRos(const rclcpp::NodeOptions &options) :
   publish_ros_msgs_ = this->declare_parameter("publish_ros_msgs", true);
   publish_autoware_msgs_ = this->declare_parameter("publish_autoware_msgs",true);
   publish_twist_msgs_ = this->declare_parameter("publish_twist_msgs",true);
+  enable_ned2enu_transform_ = this->declare_parameter("enable_ned2enu_transform",true);
 
   bool publish_tf = this->declare_parameter("publish_tf", true);
   if (publish_tf) {
@@ -205,8 +206,8 @@ void LvxClientRos::publishInsSolutionCallback(const applanix_driver::gsof::Messa
 
 void LvxClientRos::publishImuMsgCallback(const applanix_driver::gsof::Message &) {
   sensor_msgs::msg::Imu ImuMsg = ins_solution_rms_
-                                                  ? toImuMsg(*ins_solution_, *ins_solution_rms_)
-                                                  : toImuMsg(*ins_solution_);
+                                                  ? toImuMsg(*ins_solution_, *ins_solution_rms_, enable_ned2enu_transform_)
+                                                  : toImuMsg(*ins_solution_, enable_ned2enu_transform_);
 
   ImuMsg.header.frame_id = base_frame_id_;
   ImuMsg.header.stamp = getRosTimestamp(ins_solution_->gps_time);
@@ -219,8 +220,8 @@ void LvxClientRos::publishImuMsgCallback(const applanix_driver::gsof::Message &)
 void LvxClientRos::publishGnssInsOrientationCallback(const applanix_driver::gsof::Message &) {
 
   autoware_sensing_msgs::msg::GnssInsOrientationStamped gnssInsOrientationStamped = ins_solution_rms_
-                                                                                      ? toAutowareOrientationMsg(*ins_solution_, *ins_solution_rms_)
-                                                                                      : toAutowareOrientationMsg(*ins_solution_);
+                                                                                      ? toAutowareOrientationMsg(*ins_solution_, *ins_solution_rms_, enable_ned2enu_transform_)
+                                                                                      : toAutowareOrientationMsg(*ins_solution_, enable_ned2enu_transform_);
 
   gnssInsOrientationStamped.header.frame_id = gnss_ins_frame_id_;
   gnssInsOrientationStamped.header.stamp = getRosTimestamp(ins_solution_->gps_time);

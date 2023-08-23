@@ -12,3 +12,4 @@
     publish_autoware_msgs: true
     publish_twist_msgs: true
     time_source: "gps"   # now, gps or gps_time_of_week
+    enable_ned2enu_transform: true

@@ -176,51 +176,68 @@ sensor_msgs::msg::NavSatFix toNavSatFix(
   return nav_sat_fix;
 }
 
-sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution & ins_solution)
+sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution & ins_solution,
+                               const bool & enable_ned2enu_transform)
 {
     sensor_msgs::msg::Imu imuMsg;
 
-    tf2::Quaternion quaternion, ins_corrected_quat;
+    tf2::Quaternion quaternion;
     quaternion.setRPY(
             deg2rad(ins_solution.attitude.roll),
             deg2rad(ins_solution.attitude.pitch),
             deg2rad(ins_solution.attitude.heading)
             );
 
-    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
-    ins_rot_matrix.setRotation(quaternion);
+    if (enable_ned2enu_transform) {
+        tf2::Quaternion ins_corrected_quat;
+        tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
+        ins_rot_matrix.setRotation(quaternion);
 
-    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
-    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
+        ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
+        applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
 
-    ins_rot_ = ENU2NED * ins_rot_matrix;
+        ins_rot_ = ENU2NED * ins_rot_matrix;
 
-    ins_corrected_rot_ = ins_rot_ * applanix2ros;
-    ins_corrected_rot_.getRotation(ins_corrected_quat);
+        ins_corrected_rot_ = ins_rot_ * applanix2ros;
+        ins_corrected_rot_.getRotation(ins_corrected_quat);
 
-    imuMsg.orientation.x = ins_corrected_quat.getX();
-    imuMsg.orientation.y = ins_corrected_quat.getY();
-    imuMsg.orientation.z = ins_corrected_quat.getZ();
-    imuMsg.orientation.w = ins_corrected_quat.getW();
+        imuMsg.orientation.x = ins_corrected_quat.getX();
+        imuMsg.orientation.y = ins_corrected_quat.getY();
+        imuMsg.orientation.z = ins_corrected_quat.getZ();
+        imuMsg.orientation.w = ins_corrected_quat.getW();
 
-    imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
-    imuMsg.angular_velocity.y = static_cast<double>(-deg2rad(ins_solution.angular_rate.pitch));
-    imuMsg.angular_velocity.z = static_cast<double>(-deg2rad(ins_solution.angular_rate.heading));
+        imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
+        imuMsg.angular_velocity.y = static_cast<double>(-deg2rad(ins_solution.angular_rate.pitch));
+        imuMsg.angular_velocity.z = static_cast<double>(-deg2rad(ins_solution.angular_rate.heading));
 
 
-    imuMsg.linear_acceleration.x = static_cast<double>(ins_solution.acceleration.x);
-    imuMsg.linear_acceleration.y = static_cast<double>(-ins_solution.acceleration.y);
-    imuMsg.linear_acceleration.z = static_cast<double>(-ins_solution.acceleration.z);
+        imuMsg.linear_acceleration.x = static_cast<double>(ins_solution.acceleration.x);
+        imuMsg.linear_acceleration.y = static_cast<double>(-ins_solution.acceleration.y);
+        imuMsg.linear_acceleration.z = static_cast<double>(-ins_solution.acceleration.z);
+    } else {
+        imuMsg.orientation.x = quaternion.getX();
+        imuMsg.orientation.y = quaternion.getY();
+        imuMsg.orientation.z = quaternion.getZ();
+        imuMsg.orientation.w = quaternion.getW();
+
+        imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
+        imuMsg.angular_velocity.y = static_cast<double>(deg2rad(ins_solution.angular_rate.pitch));
+        imuMsg.angular_velocity.z = static_cast<double>(deg2rad(ins_solution.angular_rate.heading));
+
+        imuMsg.linear_acceleration.x = static_cast<double>(ins_solution.acceleration.x);
+        imuMsg.linear_acceleration.y = static_cast<double>(ins_solution.acceleration.y);
+        imuMsg.linear_acceleration.z = static_cast<double>(ins_solution.acceleration.z);
+    }
 
     return imuMsg;
-
 }
 
 sensor_msgs::msg::Imu toImuMsg(
             const applanix_driver::gsof::InsSolution & ins_solution,
-            const applanix_driver::gsof::InsSolutionRms & covariance)
+            const applanix_driver::gsof::InsSolutionRms & covariance,
+            const bool & enable_ned2enu_transform)
 {
-    sensor_msgs::msg::Imu imuMsg = toImuMsg(ins_solution);
+    sensor_msgs::msg::Imu imuMsg = toImuMsg(ins_solution, enable_ned2enu_transform);
 
     imuMsg.orientation_covariance[0] = std::pow(deg2rad(covariance.attitude_rms.roll), 2);
     imuMsg.orientation_covariance[4] = std::pow(deg2rad(covariance.attitude_rms.pitch), 2);
@@ -238,43 +255,56 @@ sensor_msgs::msg::Imu toImuMsg(
 }
 
 autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(
-            const applanix_driver::gsof::InsSolution & ins_solution)
+            const applanix_driver::gsof::InsSolution & ins_solution,
+            const bool & enable_ned2enu_transform)
 {
 
     autoware_sensing_msgs::msg::GnssInsOrientationStamped autowareOrientationMsg;
 
-    tf2::Quaternion quaternion, ins_corrected_quat;
+    tf2::Quaternion quaternion;
     quaternion.setRPY(
             deg2rad(ins_solution.attitude.roll),
             deg2rad(ins_solution.attitude.pitch),
             deg2rad(ins_solution.attitude.heading)
     );
 
-    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
-    ins_rot_matrix.setRotation(quaternion);
+    if (enable_ned2enu_transform) {
+        tf2::Quaternion ins_corrected_quat;
+        tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
+        ins_rot_matrix.setRotation(quaternion);
 
-    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
-    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
+        ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
+        applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
 
-    ins_rot_ = ENU2NED * ins_rot_matrix;
+        ins_rot_ = ENU2NED * ins_rot_matrix;
 
-    ins_corrected_rot_ = ins_rot_ * applanix2ros;
-    ins_corrected_rot_.getRotation(ins_corrected_quat);
+        ins_corrected_rot_ = ins_rot_ * applanix2ros;
+        ins_corrected_rot_.getRotation(ins_corrected_quat);
 
-    autowareOrientationMsg.orientation.orientation.x = quaternion.getX();
-    autowareOrientationMsg.orientation.orientation.y = quaternion.getY();
-    autowareOrientationMsg.orientation.orientation.z = quaternion.getZ();
-    autowareOrientationMsg.orientation.orientation.w = quaternion.getW();
+        autowareOrientationMsg.orientation.orientation.x = ins_corrected_quat.getX();
+        autowareOrientationMsg.orientation.orientation.y = ins_corrected_quat.getY();
+        autowareOrientationMsg.orientation.orientation.z = ins_corrected_quat.getZ();
+        autowareOrientationMsg.orientation.orientation.w = ins_corrected_quat.getW();
+    } else {
+        autowareOrientationMsg.orientation.orientation.x = quaternion.getX();
+        autowareOrientationMsg.orientation.orientation.y = quaternion.getY();
+        autowareOrientationMsg.orientation.orientation.z = quaternion.getZ();
+        autowareOrientationMsg.orientation.orientation.w = quaternion.getW();
+    }
+
+
 
     return autowareOrientationMsg;
 }
 
 autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(
             const applanix_driver::gsof::InsSolution & ins_solution,
-            const applanix_driver::gsof::InsSolutionRms & covariance)
+            const applanix_driver::gsof::InsSolutionRms & covariance,
+            const bool & enable_ned2enu_transform)
 {
 
-    autoware_sensing_msgs::msg::GnssInsOrientationStamped autowareOrientationMsg = toAutowareOrientationMsg(ins_solution);
+    autoware_sensing_msgs::msg::GnssInsOrientationStamped autowareOrientationMsg =
+            toAutowareOrientationMsg(ins_solution, enable_ned2enu_transform);
 
     autowareOrientationMsg.orientation.rmse_rotation_x = covariance.attitude_rms.roll;
     autowareOrientationMsg.orientation.rmse_rotation_y = covariance.attitude_rms.pitch;
