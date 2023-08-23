@@ -180,28 +180,28 @@ sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution & ins_so
 {
     sensor_msgs::msg::Imu imuMsg;
 
-    tf2::Quaternion quaternion;
+    tf2::Quaternion quaternion, ins_corrected_quat;
     quaternion.setRPY(
             deg2rad(ins_solution.attitude.roll),
             deg2rad(ins_solution.attitude.pitch),
             deg2rad(ins_solution.attitude.heading)
             );
 
-//    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
-//    ins_rot_matrix.setRotation(quaternion);
-//
-//    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
-//    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
-//
-//    ins_rot_ = ENU2NED * ins_rot_matrix;
-//
-//    ins_corrected_rot_ = ins_rot_ * applanix2ros;
-//    ins_corrected_rot_.getRotation(ins_corrected_quat);
+    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
+    ins_rot_matrix.setRotation(quaternion);
 
-    imuMsg.orientation.x = quaternion.getX();
-    imuMsg.orientation.y = quaternion.getY();
-    imuMsg.orientation.z = quaternion.getZ();
-    imuMsg.orientation.w = quaternion.getW();
+    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
+    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
+
+    ins_rot_ = ENU2NED * ins_rot_matrix;
+
+    ins_corrected_rot_ = ins_rot_ * applanix2ros;
+    ins_corrected_rot_.getRotation(ins_corrected_quat);
+
+    imuMsg.orientation.x = ins_corrected_quat.getX();
+    imuMsg.orientation.y = ins_corrected_quat.getY();
+    imuMsg.orientation.z = ins_corrected_quat.getZ();
+    imuMsg.orientation.w = ins_corrected_quat.getW();
 
     imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
     imuMsg.angular_velocity.y = static_cast<double>(deg2rad(ins_solution.angular_rate.pitch));
