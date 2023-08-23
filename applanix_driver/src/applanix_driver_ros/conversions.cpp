@@ -204,13 +204,13 @@ sensor_msgs::msg::Imu toImuMsg(const applanix_driver::gsof::InsSolution & ins_so
     imuMsg.orientation.w = ins_corrected_quat.getW();
 
     imuMsg.angular_velocity.x = static_cast<double>(deg2rad(ins_solution.angular_rate.roll));
-    imuMsg.angular_velocity.y = static_cast<double>(deg2rad(ins_solution.angular_rate.pitch));
-    imuMsg.angular_velocity.z = static_cast<double>(deg2rad(ins_solution.angular_rate.heading));
+    imuMsg.angular_velocity.y = static_cast<double>(-deg2rad(ins_solution.angular_rate.pitch));
+    imuMsg.angular_velocity.z = static_cast<double>(-deg2rad(ins_solution.angular_rate.heading));
 
 
     imuMsg.linear_acceleration.x = static_cast<double>(ins_solution.acceleration.x);
-    imuMsg.linear_acceleration.y = static_cast<double>(ins_solution.acceleration.y);
-    imuMsg.linear_acceleration.z = static_cast<double>(ins_solution.acceleration.z);
+    imuMsg.linear_acceleration.y = static_cast<double>(-ins_solution.acceleration.y);
+    imuMsg.linear_acceleration.z = static_cast<double>(-ins_solution.acceleration.z);
 
     return imuMsg;
 
@@ -243,23 +243,23 @@ autoware_sensing_msgs::msg::GnssInsOrientationStamped toAutowareOrientationMsg(
 
     autoware_sensing_msgs::msg::GnssInsOrientationStamped autowareOrientationMsg;
 
-    tf2::Quaternion quaternion;
+    tf2::Quaternion quaternion, ins_corrected_quat;
     quaternion.setRPY(
             deg2rad(ins_solution.attitude.roll),
             deg2rad(ins_solution.attitude.pitch),
             deg2rad(ins_solution.attitude.heading)
     );
 
-//    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
-//    ins_rot_matrix.setRotation(quaternion);
-//
-//    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
-//    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
-//
-//    ins_rot_ = ENU2NED * ins_rot_matrix;
-//
-//    ins_corrected_rot_ = ins_rot_ * applanix2ros;
-//    ins_corrected_rot_.getRotation(ins_corrected_quat);
+    tf2::Matrix3x3 ENU2NED, ins_rot_matrix, ins_rot_, ins_corrected_rot_, applanix2ros;
+    ins_rot_matrix.setRotation(quaternion);
+
+    ENU2NED = tf2::Matrix3x3(0, 1, 0, 1, 0, 0, 0, 0, -1);
+    applanix2ros = tf2::Matrix3x3(1, 0, 0, 0, -1, 0, 0, 0, -1);
+
+    ins_rot_ = ENU2NED * ins_rot_matrix;
+
+    ins_corrected_rot_ = ins_rot_ * applanix2ros;
+    ins_corrected_rot_.getRotation(ins_corrected_quat);
 
     autowareOrientationMsg.orientation.orientation.x = quaternion.getX();
     autowareOrientationMsg.orientation.orientation.y = quaternion.getY();
