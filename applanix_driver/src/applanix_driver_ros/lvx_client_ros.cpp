@@ -55,6 +55,7 @@ LvxClientRos::LvxClientRos(const rclcpp::NodeOptions &options) :
   publish_autoware_msgs_ = this->declare_parameter("publish_autoware_msgs",true);
   publish_twist_msgs_ = this->declare_parameter("publish_twist_msgs",true);
   enable_ned2enu_transform_ = this->declare_parameter("enable_ned2enu_transform",true);
+  global_pose_ = this->declare_parameter("global_pose",true);
 
   bool publish_tf = this->declare_parameter("publish_tf", true);
   if (publish_tf) {
@@ -188,8 +189,11 @@ void LvxClientRos::publishInsSolutionCallback(const applanix_driver::gsof::Messa
   nav_sat_pub->publish(nav_sat_fix);
 
   nav_msgs::msg::Odometry odom = ins_solution_rms_
-                                 ? toOdometry(*ins_solution_, *local_cartesian_, *ins_solution_rms_)
-                                 : toOdometry(*ins_solution_, *local_cartesian_);
+                                 ? toOdometry(*ins_solution_, *local_cartesian_, *utm_,
+                                              global_pose_, enable_ned2enu_transform_,
+                                              *ins_solution_rms_)
+                                 : toOdometry(*ins_solution_, *local_cartesian_, *utm_,
+                                              global_pose_, enable_ned2enu_transform_);
 
   odom.child_frame_id = child_frame_id_;
   odom.header.frame_id = parent_frame_id_;

@@ -19,6 +19,7 @@
 #include <applanix_msgs/msg/navigation_performance_gsof50.hpp>
 #include <applanix_msgs/msg/navigation_solution_gsof49.hpp>
 #include <GeographicLib/LocalCartesian.hpp>
+#include <GeographicLib/UTMUPS.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
@@ -39,9 +40,15 @@ geometry_msgs::msg::TransformStamped toTransformStamped(const std_msgs::msg::Hea
 
 
 nav_msgs::msg::Odometry toOdometry(const applanix_driver::gsof::InsSolution &ins_solution,
-                                   const GeographicLib::LocalCartesian &local_cartesian);
+                                   const GeographicLib::LocalCartesian &local_cartesian,
+                                   const GeographicLib::UTMUPS &utm,
+                                   const bool &pose_global,
+                                   const bool &enable_ned2enu_transform);
 nav_msgs::msg::Odometry toOdometry(const applanix_driver::gsof::InsSolution &ins_solution,
                                    const GeographicLib::LocalCartesian &local_cartesian,
+                                   const GeographicLib::UTMUPS &utm,
+                                   const bool &pose_global,
+                                   const bool &enable_ned2enu_transform,
                                    const applanix_driver::gsof::InsSolutionRms &ins_solution_rms);
 
 sensor_msgs::msg::NavSatFix toNavSatFix(const applanix_driver::gsof::InsSolution &ins_solution);

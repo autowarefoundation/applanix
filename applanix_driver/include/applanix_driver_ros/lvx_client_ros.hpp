@@ -18,6 +18,7 @@
 
 #include <applanix_msgs/srv/set_origin.hpp>
 #include <GeographicLib/LocalCartesian.hpp>
+#include <GeographicLib/UTMUPS.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
 #include <tf2_ros/transform_broadcaster.h>
@@ -69,6 +70,7 @@ class LvxClientRos : public rclcpp::Node {
 
   std::optional<applanix_driver::LvxClient> lvx_client_;
   std::optional<GeographicLib::LocalCartesian> local_cartesian_;
+  std::optional<GeographicLib::UTMUPS> utm_;
 
   util::RosTimeSource time_source_;
   rclcpp::Clock ros_clock_;
@@ -78,6 +80,7 @@ class LvxClientRos : public rclcpp::Node {
   bool publish_twist_msgs_;
   bool publish_tf_;
   bool enable_ned2enu_transform_;
+  bool global_pose_;
 
 
   std::unordered_map<std::string, std::shared_ptr<rclcpp::PublisherBase>> publishers_;

@@ -69,19 +69,35 @@ rclcpp::Time toRosTimeGpsEpoch(const applanix_driver::gsof::GpsTime & gps_time)
 
 nav_msgs::msg::Odometry toOdometry(
   const applanix_driver::gsof::InsSolution & ins_solution,
-  const GeographicLib::LocalCartesian & local_cartesian)
+  const GeographicLib::LocalCartesian & local_cartesian,
+  const GeographicLib::UTMUPS & utm,
+  const bool & pose_global,
+  const bool & enable_ned2enu_transform)
 {
   nav_msgs::msg::Odometry odom;
   odom.header.stamp = toRosTimeOfTheWeek(ins_solution.gps_time);
 
   applanix_driver::Enud enu;
-  const auto & lla = ins_solution.lla;
-  local_cartesian.Forward(lla.latitude, lla.longitude, lla.altitude, enu.east, enu.north, enu.up);
+    const auto & lla = ins_solution.lla;
 
-  // Convert to NED while we're at it
-  applanix_driver::Nedd ned(enu);
-  odom.pose.pose.position = toPoint(ned);
+    if (pose_global) {
+        int zone;
+        bool northp;
+        utm.Forward(lla.latitude, lla.latitude, zone, northp, enu.east, enu.north);
+        enu.up = lla.altitude;
+    } else {
+        local_cartesian.Forward(lla.latitude, lla.longitude, lla.altitude, enu.east, enu.north, enu.up);
+    }
 
+    if (!enable_ned2enu_transform) {
+        // Convert to NED while we're at it
+        applanix_driver::Nedd ned(enu);
+        odom.pose.pose.position = toPoint(ned);
+    }
+
+  odom.pose.pose.position.x = enu.east;
+  odom.pose.pose.position.y = enu.north;
+  odom.pose.pose.position.z = enu.up;
   tf2::Quaternion q;
   q.setEuler(
     deg2rad(ins_solution.attitude.heading),
@@ -105,21 +121,37 @@ nav_msgs::msg::Odometry toOdometry(
 nav_msgs::msg::Odometry toOdometry(
   const applanix_driver::gsof::InsSolution & ins_solution,
   const GeographicLib::LocalCartesian & local_cartesian,
+  const GeographicLib::UTMUPS &utm,
+  const bool &pose_global,
+  const bool &enable_ned2enu_transform,
   const applanix_driver::gsof::InsSolutionRms & ins_solution_rms)
 {
-  nav_msgs::msg::Odometry odom = toOdometry(ins_solution, local_cartesian);
+  nav_msgs::msg::Odometry odom = toOdometry(ins_solution, local_cartesian,
+                                            utm, pose_global, enable_ned2enu_transform);
 
-  odom.pose.covariance[0] = std::pow(ins_solution_rms.position_rms.north, 2);
-  odom.pose.covariance[7] = std::pow(ins_solution_rms.position_rms.east, 2);
-  odom.pose.covariance[14] = std::pow(ins_solution_rms.position_rms.down, 2);
-  odom.pose.covariance[21] = std::pow(deg2rad(ins_solution_rms.attitude_rms.roll), 2);
-  odom.pose.covariance[28] = std::pow(deg2rad(ins_solution_rms.attitude_rms.pitch), 2);
-  odom.pose.covariance[35] = std::pow(deg2rad(ins_solution_rms.attitude_rms.heading), 2);
+  if (enable_ned2enu_transform) {
+      odom.pose.covariance[0] = std::pow(ins_solution_rms.position_rms.east, 2);
+      odom.pose.covariance[7] = std::pow(ins_solution_rms.position_rms.north, 2);
+      odom.pose.covariance[14] = std::pow(-ins_solution_rms.position_rms.down, 2);
+      odom.pose.covariance[21] = std::pow(deg2rad(ins_solution_rms.attitude_rms.roll), 2);
+      odom.pose.covariance[28] = std::pow(deg2rad(ins_solution_rms.attitude_rms.pitch), 2);
+      odom.pose.covariance[35] = std::pow(deg2rad(ins_solution_rms.attitude_rms.heading), 2);
 
-  odom.twist.covariance[0] = std::pow(ins_solution_rms.velocity_rms.north, 2);
-  odom.twist.covariance[7] = std::pow(ins_solution_rms.velocity_rms.east, 2);
-  odom.twist.covariance[14] = std::pow(ins_solution_rms.velocity_rms.down, 2);
+      odom.twist.covariance[0] = std::pow(ins_solution_rms.velocity_rms.east, 2);
+      odom.twist.covariance[7] = std::pow(ins_solution_rms.velocity_rms.north, 2);
+      odom.twist.covariance[14] = std::pow(-ins_solution_rms.velocity_rms.down, 2);
+  } else {
+      odom.pose.covariance[0] = std::pow(ins_solution_rms.position_rms.north, 2);
+      odom.pose.covariance[7] = std::pow(ins_solution_rms.position_rms.east, 2);
+      odom.pose.covariance[14] = std::pow(ins_solution_rms.position_rms.down, 2);
+      odom.pose.covariance[21] = std::pow(deg2rad(ins_solution_rms.attitude_rms.roll), 2);
+      odom.pose.covariance[28] = std::pow(deg2rad(ins_solution_rms.attitude_rms.pitch), 2);
+      odom.pose.covariance[35] = std::pow(deg2rad(ins_solution_rms.attitude_rms.heading), 2);
 
+      odom.twist.covariance[0] = std::pow(ins_solution_rms.velocity_rms.north, 2);
+      odom.twist.covariance[7] = std::pow(ins_solution_rms.velocity_rms.east, 2);
+      odom.twist.covariance[14] = std::pow(ins_solution_rms.velocity_rms.down, 2);
+  }
   return odom;
 }
 
